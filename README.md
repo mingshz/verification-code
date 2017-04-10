@@ -27,6 +27,7 @@
 需要分别设置
 * `com.huotu.sms.cl.account` 发送SMS的帐号
 * `com.huotu.sms.cl.password` 发送SMS的密码
+
 以上系统属性
 
 ## 单元测试
