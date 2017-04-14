@@ -18,7 +18,7 @@ import java.io.IOException;
 /**
  * @author CJ
  */
-class DSConfig {
+public class DSConfig {
 
     @Bean
 //    @DependsOn("h2Server")

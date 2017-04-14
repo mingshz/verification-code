@@ -42,7 +42,7 @@ public class VerificationCodeServiceImpl extends AbstractVerificationCodeService
     public VerificationCodeServiceImpl(Environment environment, VerificationCodeRepository verificationCodeRepository) {
         super(verificationCodeRepository);
         serverUrl = environment.getProperty("com.huotu.sms.cl.serverUrl"
-                , "http://222.73.117.156/msg/HttpBatchSendSM");
+                , "https://sms.253.com/msg/send");
         account = environment.getProperty("com.huotu.sms.cl.account");
         password = environment.getProperty("com.huotu.sms.cl.password");
         if ((StringUtils.isEmpty(account) || StringUtils.isEmpty(password))
@@ -52,16 +52,11 @@ public class VerificationCodeServiceImpl extends AbstractVerificationCodeService
     }
 
     /**
-     * @param uri        应用地址，类似于http://ip:port/msg/
-     * @param account    账号
-     * @param pswd       密码
-     * @param mobiles    手机号码，多个号码使用","分割
-     * @param content    短信内容
-     * @param needstatus 是否需要状态报告，需要true，不需要false
+     * @param mobiles 手机号码，多个号码使用","分割
+     * @param content 短信内容
      * @return 返回值定义参见HTTP协议文档
      */
-    private String batchSend(String uri, String account, String pswd, String mobiles, String content,
-                             boolean needstatus, String product, String extno) throws IOException
+    private String batchSend(String mobiles, String content) throws IOException
             , URISyntaxException {
         try (CloseableHttpClient client = HttpClientBuilder.create()
                 .setDefaultConnectionConfig(ConnectionConfig.custom().build())
@@ -73,13 +68,11 @@ public class VerificationCodeServiceImpl extends AbstractVerificationCodeService
                 .build()) {
             URIBuilder builder = new URIBuilder(serverUrl);
             builder.setParameters(
-                    new BasicNameValuePair("account", account)
-                    , new BasicNameValuePair("pswd", password)
-                    , new BasicNameValuePair("mobile", mobiles)
-                    , new BasicNameValuePair("needstatus", String.valueOf(needstatus))
+                    new BasicNameValuePair("un", account)
+                    , new BasicNameValuePair("pw", password)
+                    , new BasicNameValuePair("phone", mobiles)
+                    , new BasicNameValuePair("rd", String.valueOf(true))
                     , new BasicNameValuePair("msg", content)
-                    , new BasicNameValuePair("product", product)
-                    , new BasicNameValuePair("extno", extno)
             );
 
             HttpGet method = new HttpGet(builder.build());
@@ -92,7 +85,7 @@ public class VerificationCodeServiceImpl extends AbstractVerificationCodeService
     protected void send(String to, String content) throws IOException {
         String text;
         try {
-            text = batchSend(serverUrl, account, password, to, content, true, null, null);
+            text = batchSend(to, content);
         } catch (URISyntaxException e) {
             throw new IOException(e);
         }
