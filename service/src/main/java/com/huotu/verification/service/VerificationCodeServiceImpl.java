@@ -11,6 +11,7 @@ package com.huotu.verification.service;
 
 import com.huotu.verification.VerificationType;
 import com.huotu.verification.repository.VerificationCodeRepository;
+import me.jiangcai.lib.notice.NoticeService;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
@@ -37,6 +38,9 @@ public class VerificationCodeServiceImpl extends AbstractVerificationCodeService
     private final String serverUrl;
     private final String account;
     private final String password;
+    private final String noticeSupplier;
+    @Autowired
+    private NoticeService noticeService;
 
     @Autowired
     public VerificationCodeServiceImpl(Environment environment, VerificationCodeRepository verificationCodeRepository) {
@@ -45,19 +49,28 @@ public class VerificationCodeServiceImpl extends AbstractVerificationCodeService
                 , "https://sms.253.com/msg/send");
         account = environment.getProperty("com.huotu.sms.cl.account");
         password = environment.getProperty("com.huotu.sms.cl.password");
+        noticeSupplier = environment.getProperty("com.huotu.notice.supplier");
         if ((StringUtils.isEmpty(account) || StringUtils.isEmpty(password))
                 && !environment.acceptsProfiles("test")) {
-            throw new IllegalStateException("com.huotu.sms.cl.account and com.huotu.sms.cl.password is required.");
+            if (StringUtils.isEmpty(noticeSupplier))
+                throw new IllegalStateException("com.huotu.sms.cl.account and com.huotu.sms.cl.password or com.huotu.notice.supplier is required.");
         }
     }
 
     /**
      * @param mobiles 手机号码，多个号码使用","分割
      * @param content 短信内容
-     * @return 返回值定义参见HTTP协议文档
      */
-    private String batchSend(String mobiles, String content) throws IOException
+    private void batchSend(String mobiles, String content) throws IOException
             , URISyntaxException {
+        if (!StringUtils.isEmpty(noticeSupplier)) {
+            try {
+                noticeService.send(noticeSupplier, () -> mobiles, () -> content);
+                return;
+            } catch (ClassNotFoundException e) {
+                throw new IllegalStateException("请确保将供应商" + noticeSupplier + "放置classpath", e);
+            }
+        }
         try (CloseableHttpClient client = HttpClientBuilder.create()
                 .setDefaultConnectionConfig(ConnectionConfig.custom().build())
                 .setDefaultRequestConfig(RequestConfig.custom()
@@ -77,21 +90,20 @@ public class VerificationCodeServiceImpl extends AbstractVerificationCodeService
 
             HttpGet method = new HttpGet(builder.build());
 
-            return client.execute(method, new BasicResponseHandler());
+            String text = client.execute(method, new BasicResponseHandler());
+            int code = Integer.parseInt(text.split("\n")[0].split(",")[1]);
+            if (code != 0)
+                throw new IOException("sent failed, code:" + code);
         }
     }
 
     @Override
     protected void send(String to, String content) throws IOException {
-        String text;
         try {
-            text = batchSend(to, content);
+            batchSend(to, content);
         } catch (URISyntaxException e) {
             throw new IOException(e);
         }
-        int code = Integer.parseInt(text.split("\n")[0].split(",")[1]);
-        if (code != 0)
-            throw new IOException("sent failed, code:" + code);
     }
 
     @Override

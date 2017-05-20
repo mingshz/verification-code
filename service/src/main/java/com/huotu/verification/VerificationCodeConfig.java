@@ -9,14 +9,17 @@
 
 package com.huotu.verification;
 
+import me.jiangcai.lib.notice.NoticeSpringConfig;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 /**
  * @author CJ
  */
 @Configuration
+@Import(NoticeSpringConfig.class)
 @EnableJpaRepositories("com.huotu.verification.repository")
 @ComponentScan("com.huotu.verification.service")
 public class VerificationCodeConfig {

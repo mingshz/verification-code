@@ -44,3 +44,6 @@
         </dependency>
 
 并且载入`VerificationCodeTestConfig`即可
+
+## 1.2 版本新增功能
+允许通过设置`com.huotu.notice.supplier`为Notice供应商类名进行短信发送。
