@@ -9,6 +9,7 @@
 
 package com.huotu.verification.service;
 
+import com.huotu.verification.FrequentlySendException;
 import com.huotu.verification.IllegalVerificationCodeException;
 import com.huotu.verification.VerificationType;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,8 +39,8 @@ public interface VerificationCodeService {
      *
      * @param mobile 手机号码
      * @param type   验证码类型
-     * @throws IOException           如果发送失败
-     * @throws IllegalStateException 如果重复发送
+     * @throws IOException             如果发送失败
+     * @throws FrequentlySendException 如果重复发送
      */
     @Transactional
     void sendCode(String mobile, VerificationType type) throws IOException;

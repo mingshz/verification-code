@@ -9,6 +9,7 @@
 
 package com.huotu.verification.service;
 
+import com.huotu.verification.FrequentlySendException;
 import com.huotu.verification.IllegalVerificationCodeException;
 import com.huotu.verification.VerificationType;
 import com.huotu.verification.entity.VerificationCode;
@@ -53,7 +54,7 @@ public abstract class AbstractVerificationCodeService implements VerificationCod
             instance.add(Calendar.SECOND, -type.protectSeconds());
 
             if (instance.before(verificationCode.getSendTime()))
-                throw new IllegalStateException("短时间内不可以重复发送。");
+                throw new FrequentlySendException("短时间内不可以重复发送。");
         } else {
             verificationCode = new VerificationCode();
             verificationCode.setMobile(mobile);
