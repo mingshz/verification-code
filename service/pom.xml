@@ -16,7 +16,7 @@
     <parent>
         <artifactId>verification-code</artifactId>
         <groupId>com.huotu.verification-code</groupId>
-        <version>1.2</version>
+        <version>1.2.1</version>
     </parent>
 
     <artifactId>vc-service</artifactId>
