@@ -10,6 +10,7 @@
 package com.huotu.verification.service;
 
 import com.huotu.verification.VerificationType;
+import com.huotu.verification.repository.VerificationCodeMultipleRepository;
 import com.huotu.verification.repository.VerificationCodeRepository;
 import me.jiangcai.lib.notice.NoticeService;
 import org.apache.commons.lang.RandomStringUtils;
@@ -43,8 +44,9 @@ public class VerificationCodeServiceImpl extends AbstractVerificationCodeService
     private NoticeService noticeService;
 
     @Autowired
-    public VerificationCodeServiceImpl(Environment environment, VerificationCodeRepository verificationCodeRepository) {
-        super(verificationCodeRepository);
+    public VerificationCodeServiceImpl(Environment environment, VerificationCodeRepository verificationCodeRepository
+            , VerificationCodeMultipleRepository verificationCodeMultipleRepository) {
+        super(verificationCodeRepository, verificationCodeMultipleRepository);
         serverUrl = environment.getProperty("com.huotu.sms.cl.serverUrl"
                 , "https://sms.253.com/msg/send");
         account = environment.getProperty("com.huotu.sms.cl.account");

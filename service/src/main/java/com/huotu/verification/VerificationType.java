@@ -35,6 +35,14 @@ public interface VerificationType {
     }
 
     /**
+     * @return 是否允许多个验证码同时有效
+     * @since 1.3
+     */
+    default boolean allowMultiple() {
+        return false;
+    }
+
+    /**
      * @param code 随机码
      * @return 即将发送给手机的文本内容
      */

@@ -9,16 +9,19 @@
 
 package com.huotu.verification;
 
+import com.huotu.verification.repository.VerificationCodeMultipleRepository;
 import com.huotu.verification.repository.VerificationCodeRepository;
 import com.huotu.verification.service.AbstractVerificationCodeService;
 import com.huotu.verification.service.VerificationCodeService;
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.Primary;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -34,13 +37,17 @@ public class TestConfig {
 
     @Autowired
     private VerificationCodeRepository verificationCodeRepository;
+    @Autowired
+    private VerificationCodeMultipleRepository verificationCodeMultipleRepository;
     @Getter
     private final Set<String> received = new HashSet<>();
+    @Setter
+    private String nextCode;
 
     @Bean
     @Primary
     public VerificationCodeService verificationCodeService() {
-        return new AbstractVerificationCodeService(verificationCodeRepository) {
+        return new AbstractVerificationCodeService(verificationCodeRepository, verificationCodeMultipleRepository) {
             @Override
             protected void send(String to, String content) throws IOException {
                 received.add(to);
@@ -48,6 +55,8 @@ public class TestConfig {
 
             @Override
             protected String generateCode(String mobile, VerificationType type) {
+                if (!StringUtils.isEmpty(nextCode))
+                    return nextCode;
                 return "1234";
             }
         };

@@ -14,6 +14,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * @author CJ
@@ -21,6 +22,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @Configuration
 @Import(NoticeSpringConfig.class)
 @EnableJpaRepositories("com.huotu.verification.repository")
+@EnableScheduling
 @ComponentScan("com.huotu.verification.service")
 public class VerificationCodeConfig {
 }
