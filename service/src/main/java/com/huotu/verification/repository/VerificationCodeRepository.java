@@ -9,12 +9,14 @@
 
 package com.huotu.verification.repository;
 
-import com.huotu.verification.entity.VerificationCodePK;
 import com.huotu.verification.entity.VerificationCode;
+import com.huotu.verification.entity.VerificationCodePK;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 /**
  * @author CJ
  */
-public interface VerificationCodeRepository extends JpaRepository<VerificationCode,VerificationCodePK> {
+public interface VerificationCodeRepository extends JpaRepository<VerificationCode, VerificationCodePK>
+        , JpaSpecificationExecutor<VerificationCode> {
 }
