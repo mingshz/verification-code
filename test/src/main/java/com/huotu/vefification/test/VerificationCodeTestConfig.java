@@ -11,6 +11,7 @@ package com.huotu.vefification.test;
 
 import com.huotu.verification.VerificationCodeConfig;
 import com.huotu.verification.VerificationType;
+import com.huotu.verification.repository.VerificationCodeMultipleRepository;
 import com.huotu.verification.repository.VerificationCodeRepository;
 import com.huotu.verification.service.AbstractVerificationCodeService;
 import com.huotu.verification.service.VerificationCodeService;
@@ -34,16 +35,19 @@ public class VerificationCodeTestConfig {
     private static final Log log = LogFactory.getLog(VerificationCodeTestConfig.class);
 
     private final VerificationCodeRepository verificationCodeRepository;
+    private final VerificationCodeMultipleRepository verificationCodeMultipleRepository;
 
     @Autowired
-    public VerificationCodeTestConfig(VerificationCodeRepository verificationCodeRepository) {
+    public VerificationCodeTestConfig(VerificationCodeRepository verificationCodeRepository
+            , VerificationCodeMultipleRepository verificationCodeMultipleRepository) {
         this.verificationCodeRepository = verificationCodeRepository;
+        this.verificationCodeMultipleRepository = verificationCodeMultipleRepository;
     }
 
     @Primary
     @Bean
     public VerificationCodeService verificationCodeService() {
-        return new AbstractVerificationCodeService(verificationCodeRepository) {
+        return new AbstractVerificationCodeService(verificationCodeRepository, verificationCodeMultipleRepository) {
             private final String code = "1234567890";
 
             @Override

@@ -16,7 +16,7 @@
     <groupId>com.huotu.verification-code</groupId>
     <artifactId>verification-code</artifactId>
     <packaging>pom</packaging>
-    <version>1.3</version>
+    <version>1.3.1</version>
 
     <description>
         通用的验证码服务，目前只支持创兰
