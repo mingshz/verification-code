@@ -23,6 +23,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.io.IOException;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -59,7 +60,27 @@ public class VerificationCodeServiceTest {
 
             @Override
             public Content generateContent(String code) {
-                return null;
+                return new Content() {
+                    @Override
+                    public String asText() {
+                        return message(code);
+                    }
+
+                    @Override
+                    public String signName() {
+                        return null;
+                    }
+
+                    @Override
+                    public String templateName() {
+                        return null;
+                    }
+
+                    @Override
+                    public Map<String, ?> templateParameters() {
+                        return null;
+                    }
+                };
             }
 
             @Override
@@ -137,7 +158,27 @@ public class VerificationCodeServiceTest {
 
             @Override
             public Content generateContent(String code) {
-                return null;
+                return new Content() {
+                    @Override
+                    public String asText() {
+                        return message(code);
+                    }
+
+                    @Override
+                    public String signName() {
+                        return null;
+                    }
+
+                    @Override
+                    public String templateName() {
+                        return null;
+                    }
+
+                    @Override
+                    public Map<String, ?> templateParameters() {
+                        return null;
+                    }
+                };
             }
 
             @Override
