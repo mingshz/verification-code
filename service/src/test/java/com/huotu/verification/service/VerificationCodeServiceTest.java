@@ -13,6 +13,7 @@ import com.huotu.verification.IllegalVerificationCodeException;
 import com.huotu.verification.TestConfig;
 import com.huotu.verification.VerificationCodeConfig;
 import com.huotu.verification.VerificationType;
+import me.jiangcai.lib.notice.Content;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,6 +55,11 @@ public class VerificationCodeServiceTest {
             @Override
             public String message(String code) {
                 return code;
+            }
+
+            @Override
+            public Content generateContent(String code) {
+                return null;
             }
 
             @Override
@@ -127,6 +133,11 @@ public class VerificationCodeServiceTest {
             @Override
             public String message(String code) {
                 return code;
+            }
+
+            @Override
+            public Content generateContent(String code) {
+                return null;
             }
 
             @Override

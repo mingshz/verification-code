@@ -15,6 +15,7 @@ import com.huotu.verification.repository.VerificationCodeMultipleRepository;
 import com.huotu.verification.repository.VerificationCodeRepository;
 import com.huotu.verification.service.AbstractVerificationCodeService;
 import com.huotu.verification.service.VerificationCodeService;
+import me.jiangcai.lib.notice.Content;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +52,7 @@ public class VerificationCodeTestConfig {
             private final String code = "1234567890";
 
             @Override
-            protected void send(String to, String content) throws IOException {
+            protected void send(String to, Content content) throws IOException {
                 log.info("发送文本" + content + " 到" + to);
             }
 

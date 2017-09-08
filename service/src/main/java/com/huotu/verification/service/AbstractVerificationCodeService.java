@@ -17,6 +17,7 @@ import com.huotu.verification.entity.VerificationCodeMultiple;
 import com.huotu.verification.entity.VerificationCodePK;
 import com.huotu.verification.repository.VerificationCodeMultipleRepository;
 import com.huotu.verification.repository.VerificationCodeRepository;
+import me.jiangcai.lib.notice.Content;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
@@ -90,7 +91,7 @@ public abstract class AbstractVerificationCodeService implements VerificationCod
             String code = generateCode(mobile, type);
 
             // 执行发送
-            send(mobile, type.message(code));
+            send(mobile, type.generateContent(code));
 
             // 保存数据库
             verificationCode.setCode(code);
@@ -113,7 +114,7 @@ public abstract class AbstractVerificationCodeService implements VerificationCod
             String code = generateCode(mobile, type);
 
             // 执行发送
-            send(mobile, type.message(code));
+            send(mobile, type.generateContent(code));
 
             // 保存数据库
             verificationCode.setCode(code);
@@ -124,11 +125,10 @@ public abstract class AbstractVerificationCodeService implements VerificationCod
 
     /**
      * 实际的发送文本
-     *
-     * @param to      接受手机号码
+     *  @param to      接受手机号码
      * @param content 内容
      */
-    protected abstract void send(String to, String content) throws IOException;
+    protected abstract void send(String to, Content content) throws IOException;
 
     /**
      * @param mobile 手机号码

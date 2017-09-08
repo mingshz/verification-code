@@ -9,6 +9,8 @@
 
 package com.huotu.verification;
 
+import me.jiangcai.lib.notice.Content;
+
 /**
  * 验证类型
  *
@@ -45,6 +47,7 @@ public interface VerificationType {
     /**
      * @param code 随机码
      * @return 即将发送给手机的文本内容
+     * @deprecated 1.4之后不再使用该方法
      */
     String message(String code);
 
@@ -54,4 +57,11 @@ public interface VerificationType {
     default int codeLength() {
         return 4;
     }
+
+    /**
+     * @param code 随机码
+     * @return 即将发送给手机的信息内容
+     * @since 1.4
+     */
+    Content generateContent(String code);
 }

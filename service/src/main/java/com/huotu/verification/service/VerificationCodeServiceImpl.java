@@ -12,6 +12,7 @@ package com.huotu.verification.service;
 import com.huotu.verification.VerificationType;
 import com.huotu.verification.repository.VerificationCodeMultipleRepository;
 import com.huotu.verification.repository.VerificationCodeRepository;
+import me.jiangcai.lib.notice.Content;
 import me.jiangcai.lib.notice.NoticeService;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.http.client.config.RequestConfig;
@@ -63,11 +64,11 @@ public class VerificationCodeServiceImpl extends AbstractVerificationCodeService
      * @param mobiles 手机号码，多个号码使用","分割
      * @param content 短信内容
      */
-    private void batchSend(String mobiles, String content) throws IOException
+    private void batchSend(String mobiles, Content content) throws IOException
             , URISyntaxException {
         if (!StringUtils.isEmpty(noticeSupplier)) {
             try {
-                noticeService.send(noticeSupplier, () -> mobiles, () -> content);
+                noticeService.send(noticeSupplier, () -> mobiles, content);
                 return;
             } catch (ClassNotFoundException e) {
                 throw new IllegalStateException("请确保将供应商" + noticeSupplier + "放置classpath", e);
@@ -87,7 +88,7 @@ public class VerificationCodeServiceImpl extends AbstractVerificationCodeService
                     , new BasicNameValuePair("pw", password)
                     , new BasicNameValuePair("phone", mobiles)
                     , new BasicNameValuePair("rd", String.valueOf(true))
-                    , new BasicNameValuePair("msg", content)
+                    , new BasicNameValuePair("msg", content.asText())
             );
 
             HttpGet method = new HttpGet(builder.build());
@@ -100,7 +101,7 @@ public class VerificationCodeServiceImpl extends AbstractVerificationCodeService
     }
 
     @Override
-    protected void send(String to, String content) throws IOException {
+    protected void send(String to, Content content) throws IOException {
         try {
             batchSend(to, content);
         } catch (URISyntaxException e) {
