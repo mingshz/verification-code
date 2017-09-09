@@ -36,7 +36,7 @@
         <javaee.version>7.0</javaee.version>
         <spring.version>4.2.5.RELEASE</spring.version>
         <jiangcai.version>2.2</jiangcai.version>
-        <jiangcai.notice.version>3.0-SNAPSHOT</jiangcai.notice.version>
+        <jiangcai.notice.version>3.0</jiangcai.notice.version>
     </properties>
 
     <dependencies>
