@@ -20,4 +20,8 @@ public class FrequentlySendException extends IllegalStateException {
     public FrequentlySendException(String s) {
         super(s);
     }
+
+    public FrequentlySendException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

@@ -9,11 +9,13 @@
 
 package com.huotu.verification.service;
 
+import com.huotu.verification.FrequentlySendException;
 import com.huotu.verification.VerificationType;
 import com.huotu.verification.repository.VerificationCodeMultipleRepository;
 import com.huotu.verification.repository.VerificationCodeRepository;
 import me.jiangcai.lib.notice.Content;
 import me.jiangcai.lib.notice.NoticeService;
+import me.jiangcai.lib.notice.exception.BadToException;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
@@ -72,6 +74,8 @@ public class VerificationCodeServiceImpl extends AbstractVerificationCodeService
                 return;
             } catch (ClassNotFoundException e) {
                 throw new IllegalStateException("请确保将供应商" + noticeSupplier + "放置classpath", e);
+            } catch (BadToException ex){
+                throw new FrequentlySendException("短时间内不可以重复发送。",ex);
             }
         }
         try (CloseableHttpClient client = HttpClientBuilder.create()
