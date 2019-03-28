@@ -11,6 +11,7 @@ package com.huotu.verification.service;
 
 import com.huotu.verification.FrequentlySendException;
 import com.huotu.verification.IllegalVerificationCodeException;
+import com.huotu.verification.Sender;
 import com.huotu.verification.VerificationType;
 import com.huotu.verification.entity.VerificationCode;
 import com.huotu.verification.entity.VerificationCodeMultiple;
@@ -68,7 +69,7 @@ public abstract class AbstractVerificationCodeService implements VerificationCod
     }
 
     @Override
-    public void sendCode(String mobile, VerificationType type) throws IOException {
+    public void sendCode(Sender sender, String mobile, VerificationType type) throws IOException {
         final Calendar instance = Calendar.getInstance();
         instance.add(Calendar.SECOND, -type.protectSeconds());
         // 短时间内不允许 1 分钟?
@@ -91,7 +92,7 @@ public abstract class AbstractVerificationCodeService implements VerificationCod
             String code = generateCode(mobile, type);
 
             // 执行发送
-            send(mobile, type.generateContent(code));
+            send(sender, mobile, type.generateContent(code));
 
             // 保存数据库
             verificationCode.setCode(code);
@@ -114,7 +115,7 @@ public abstract class AbstractVerificationCodeService implements VerificationCod
             String code = generateCode(mobile, type);
 
             // 执行发送
-            send(mobile, type.generateContent(code));
+            send(sender, mobile, type.generateContent(code));
 
             // 保存数据库
             verificationCode.setCode(code);
@@ -123,12 +124,18 @@ public abstract class AbstractVerificationCodeService implements VerificationCod
         }
     }
 
+    @Override
+    public void sendCode(String mobile, VerificationType type) throws IOException {
+        sendCode(null,mobile,type);
+    }
+
     /**
      * 实际的发送文本
-     *  @param to      接受手机号码
+     * @param sender
+     * @param to      接受手机号码
      * @param content 内容
      */
-    protected abstract void send(String to, Content content) throws IOException;
+    protected abstract void send(Sender sender, String to, Content content) throws IOException;
 
     /**
      * @param mobile 手机号码

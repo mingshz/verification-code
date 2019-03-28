@@ -50,7 +50,7 @@ public class TestConfig {
     public VerificationCodeService verificationCodeService() {
         return new AbstractVerificationCodeService(verificationCodeRepository, verificationCodeMultipleRepository) {
             @Override
-            protected void send(String to, Content content) throws IOException {
+            protected void send(Sender sender, String to, Content content) throws IOException {
                 received.add(to);
             }
 

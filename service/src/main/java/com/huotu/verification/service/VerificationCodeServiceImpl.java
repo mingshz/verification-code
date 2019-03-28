@@ -10,6 +10,7 @@
 package com.huotu.verification.service;
 
 import com.huotu.verification.FrequentlySendException;
+import com.huotu.verification.Sender;
 import com.huotu.verification.VerificationType;
 import com.huotu.verification.repository.VerificationCodeMultipleRepository;
 import com.huotu.verification.repository.VerificationCodeRepository;
@@ -66,16 +67,24 @@ public class VerificationCodeServiceImpl extends AbstractVerificationCodeService
      * @param mobiles 手机号码，多个号码使用","分割
      * @param content 短信内容
      */
-    private void batchSend(String mobiles, Content content) throws IOException
+    private void batchSend(Sender sender, String mobiles, Content content) throws IOException
             , URISyntaxException {
+        if (sender != null) {
+            try {
+                sender.toNoticeSupplier().send(() -> mobiles, content);
+                return;
+            } catch (BadToException ex) {
+                throw new FrequentlySendException("短时间内不可以重复发送。", ex);
+            }
+        }
         if (!StringUtils.isEmpty(noticeSupplier)) {
             try {
                 noticeService.send(noticeSupplier, () -> mobiles, content);
                 return;
             } catch (ClassNotFoundException e) {
                 throw new IllegalStateException("请确保将供应商" + noticeSupplier + "放置classpath", e);
-            } catch (BadToException ex){
-                throw new FrequentlySendException("短时间内不可以重复发送。",ex);
+            } catch (BadToException ex) {
+                throw new FrequentlySendException("短时间内不可以重复发送。", ex);
             }
         }
         try (CloseableHttpClient client = HttpClientBuilder.create()
@@ -105,9 +114,9 @@ public class VerificationCodeServiceImpl extends AbstractVerificationCodeService
     }
 
     @Override
-    protected void send(String to, Content content) throws IOException {
+    protected void send(Sender sender, String to, Content content) throws IOException {
         try {
-            batchSend(to, content);
+            batchSend(sender, to, content);
         } catch (URISyntaxException e) {
             throw new IOException(e);
         }

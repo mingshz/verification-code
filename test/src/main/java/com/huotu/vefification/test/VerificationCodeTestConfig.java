@@ -9,6 +9,7 @@
 
 package com.huotu.vefification.test;
 
+import com.huotu.verification.Sender;
 import com.huotu.verification.VerificationCodeConfig;
 import com.huotu.verification.VerificationType;
 import com.huotu.verification.repository.VerificationCodeMultipleRepository;
@@ -52,7 +53,7 @@ public class VerificationCodeTestConfig {
             private final String code = "1234567890";
 
             @Override
-            protected void send(String to, Content content) throws IOException {
+            protected void send(Sender sender, String to, Content content) throws IOException {
                 log.info("发送文本" + content + " 到" + to);
             }
 
