@@ -10,29 +10,23 @@
 package com.huotu.verification.service;
 
 import com.huotu.verification.FrequentlySendException;
-import com.huotu.verification.Sender;
 import com.huotu.verification.VerificationType;
 import com.huotu.verification.repository.VerificationCodeMultipleRepository;
 import com.huotu.verification.repository.VerificationCodeRepository;
 import me.jiangcai.lib.notice.Content;
+import me.jiangcai.lib.notice.NoticeSender;
 import me.jiangcai.lib.notice.NoticeService;
+import me.jiangcai.lib.notice.To;
+import me.jiangcai.lib.notice.email.EmailAddress;
 import me.jiangcai.lib.notice.exception.BadToException;
 import org.apache.commons.lang.RandomStringUtils;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.config.ConnectionConfig;
-import org.apache.http.impl.client.BasicResponseHandler;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.message.BasicNameValuePair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Set;
 
 /**
  * @author CJ
@@ -40,10 +34,10 @@ import java.net.URISyntaxException;
 @Service
 public class VerificationCodeServiceImpl extends AbstractVerificationCodeService {
 
-    private final String serverUrl;
-    private final String account;
-    private final String password;
-    private final String noticeSupplier;
+    //    private final String serverUrl;
+//    private final String account;
+//    private final String password;
+//    private final String noticeSupplier;
     @Autowired
     private NoticeService noticeService;
 
@@ -51,70 +45,95 @@ public class VerificationCodeServiceImpl extends AbstractVerificationCodeService
     public VerificationCodeServiceImpl(Environment environment, VerificationCodeRepository verificationCodeRepository
             , VerificationCodeMultipleRepository verificationCodeMultipleRepository) {
         super(verificationCodeRepository, verificationCodeMultipleRepository);
-        serverUrl = environment.getProperty("com.huotu.sms.cl.serverUrl"
-                , "https://sms.253.com/msg/send");
-        account = environment.getProperty("com.huotu.sms.cl.account");
-        password = environment.getProperty("com.huotu.sms.cl.password");
-        noticeSupplier = environment.getProperty("com.huotu.notice.supplier");
-        if ((StringUtils.isEmpty(account) || StringUtils.isEmpty(password))
-                && !environment.acceptsProfiles("test")) {
-            if (StringUtils.isEmpty(noticeSupplier))
-                throw new IllegalStateException("com.huotu.sms.cl.account and com.huotu.sms.cl.password or com.huotu.notice.supplier is required.");
-        }
+//        serverUrl = environment.getProperty("com.huotu.sms.cl.serverUrl"
+//                , "https://sms.253.com/msg/send");
+//        account = environment.getProperty("com.huotu.sms.cl.account");
+//        password = environment.getProperty("com.huotu.sms.cl.password");
+//        noticeSupplier = environment.getProperty("com.huotu.notice.supplier");
+//        if ((StringUtils.isEmpty(account) || StringUtils.isEmpty(password))
+//                && !environment.acceptsProfiles("test")) {
+//            if (StringUtils.isEmpty(noticeSupplier))
+//                throw new IllegalStateException("com.huotu.sms.cl.account and com.huotu.sms.cl.password or com.huotu.notice.supplier is required.");
+//        }
     }
 
     /**
+     * @param sender
      * @param mobiles 手机号码，多个号码使用","分割
      * @param content 短信内容
      */
-    private void batchSend(Sender sender, String mobiles, Content content) throws IOException
+    private void batchSend(NoticeSender sender, String mobiles, Content content) throws IOException
             , URISyntaxException {
-        if (sender != null) {
-            try {
-                sender.toNoticeSupplier().send(() -> mobiles, content);
-                return;
-            } catch (BadToException ex) {
-                throw new FrequentlySendException("短时间内不可以重复发送。", ex);
+        final To to = new To() {
+            @Override
+            public String mobilePhone() {
+                return mobiles;
             }
-        }
-        if (!StringUtils.isEmpty(noticeSupplier)) {
-            try {
-                noticeService.send(noticeSupplier, () -> mobiles, content);
-                return;
-            } catch (ClassNotFoundException e) {
-                throw new IllegalStateException("请确保将供应商" + noticeSupplier + "放置classpath", e);
-            } catch (BadToException ex) {
-                throw new FrequentlySendException("短时间内不可以重复发送。", ex);
+
+            @Override
+            public Set<EmailAddress> emailTo() {
+                return null;
             }
-        }
-        try (CloseableHttpClient client = HttpClientBuilder.create()
-                .setDefaultConnectionConfig(ConnectionConfig.custom().build())
-                .setDefaultRequestConfig(RequestConfig.custom()
-                        .setConnectTimeout(30000)
-                        .setSocketTimeout(30000)
-                        .setConnectionRequestTimeout(30000)
-                        .build())
-                .build()) {
-            URIBuilder builder = new URIBuilder(serverUrl);
-            builder.setParameters(
-                    new BasicNameValuePair("un", account)
-                    , new BasicNameValuePair("pw", password)
-                    , new BasicNameValuePair("phone", mobiles)
-                    , new BasicNameValuePair("rd", String.valueOf(true))
-                    , new BasicNameValuePair("msg", content.asText())
-            );
+        };
 
-            HttpGet method = new HttpGet(builder.build());
-
-            String text = client.execute(method, new BasicResponseHandler());
-            int code = Integer.parseInt(text.split("\n")[0].split(",")[1]);
-            if (code != 0)
-                throw new IOException("sent failed, code:" + code);
+        try {
+            if (sender != null) {
+                noticeService.send(sender, to, content);
+            } else {
+                noticeService.send(to, content);
+            }
+        } catch (BadToException ex) {
+            throw new FrequentlySendException("短时间内不可以重复发送。", ex);
         }
+
+//        if (!StringUtils.isEmpty(noticeSupplier)) {
+//            try {
+//                noticeService.send(noticeSupplier, new To() {
+//                    @Override
+//                    public String mobilePhone() {
+//                        return null;
+//                    }
+//
+//                    @Override
+//                    public Set<EmailAddress> emailTo() {
+//                        return null;
+//                    }
+//                }, content);
+//                return;
+//            } catch (ClassNotFoundException e) {
+//                throw new IllegalStateException("请确保将供应商" + noticeSupplier + "放置classpath", e);
+//            } catch (BadToException ex) {
+//                throw new FrequentlySendException("短时间内不可以重复发送。", ex);
+//            }
+//        }
+//        try (CloseableHttpClient client = HttpClientBuilder.create()
+//                .setDefaultConnectionConfig(ConnectionConfig.custom().build())
+//                .setDefaultRequestConfig(RequestConfig.custom()
+//                        .setConnectTimeout(30000)
+//                        .setSocketTimeout(30000)
+//                        .setConnectionRequestTimeout(30000)
+//                        .build())
+//                .build()) {
+//            URIBuilder builder = new URIBuilder(serverUrl);
+//            builder.setParameters(
+//                    new BasicNameValuePair("un", account)
+//                    , new BasicNameValuePair("pw", password)
+//                    , new BasicNameValuePair("phone", mobiles)
+//                    , new BasicNameValuePair("rd", String.valueOf(true))
+//                    , new BasicNameValuePair("msg", content.asText())
+//            );
+//
+//            HttpGet method = new HttpGet(builder.build());
+//
+//            String text = client.execute(method, new BasicResponseHandler());
+//            int code = Integer.parseInt(text.split("\n")[0].split(",")[1]);
+//            if (code != 0)
+//                throw new IOException("sent failed, code:" + code);
+//        }
     }
 
     @Override
-    protected void send(Sender sender, String to, Content content) throws IOException {
+    protected void send(NoticeSender sender, String to, Content content) throws IOException {
         try {
             batchSend(sender, to, content);
         } catch (URISyntaxException e) {

@@ -11,14 +11,15 @@ package com.huotu.verification.service;
 
 import com.huotu.verification.FrequentlySendException;
 import com.huotu.verification.IllegalVerificationCodeException;
-import com.huotu.verification.Sender;
 import com.huotu.verification.VerificationType;
 import com.huotu.verification.entity.VerificationCode;
 import com.huotu.verification.entity.VerificationCodeMultiple;
 import com.huotu.verification.entity.VerificationCodePK;
 import com.huotu.verification.repository.VerificationCodeMultipleRepository;
 import com.huotu.verification.repository.VerificationCodeRepository;
+import me.jiangcai.common.ss.SystemStringService;
 import me.jiangcai.lib.notice.Content;
+import me.jiangcai.lib.notice.NoticeSender;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
@@ -32,6 +33,8 @@ public abstract class AbstractVerificationCodeService implements VerificationCod
 
     private final VerificationCodeRepository verificationCodeRepository;
     private final VerificationCodeMultipleRepository verificationCodeMultipleRepository;
+    @Autowired
+    private SystemStringService systemStringService;
 
     @Autowired
     public AbstractVerificationCodeService(VerificationCodeRepository verificationCodeRepository
@@ -50,26 +53,32 @@ public abstract class AbstractVerificationCodeService implements VerificationCod
             if (list.isEmpty())
                 throw new IllegalVerificationCodeException(type);
             // 过滤掉过期的，再过滤掉不匹配的，如果剩下还存在
+            if (code.equals(getSuperCode())) {
+                return;
+            }
             if (list.stream().filter(verificationCodeMultiple -> verificationCodeMultiple.getCode().equals(code))
-                    .filter(verificationCodeMultiple -> instance.before(verificationCodeMultiple.getSendTime()))
-                    .count() == 0
-                    )
+                    .noneMatch(verificationCodeMultiple -> instance.before(verificationCodeMultiple.getSendTime())))
                 throw new IllegalVerificationCodeException(type);
         } else {
             VerificationCode verificationCode = verificationCodeRepository.findOne(new VerificationCodePK(mobile, type));
             if (verificationCode == null)
                 throw new IllegalVerificationCodeException(type);
-            if (!verificationCode.getCode().equals(code))
-                throw new IllegalVerificationCodeException(type);
-            // 过期了
-
             if (instance.after(verificationCode.getSendTime()))
+                throw new IllegalVerificationCodeException(type);
+            if (code.equals(getSuperCode())) {
+                return;
+            }
+            if (!verificationCode.getCode().equals(code))
                 throw new IllegalVerificationCodeException(type);
         }
     }
 
+    private String getSuperCode() {
+        return systemStringService.getCustomSystemString("best.vc", null, true, String.class, "9527");
+    }
+
     @Override
-    public void sendCode(Sender sender, String mobile, VerificationType type) throws IOException {
+    public void sendCode(NoticeSender sender, String mobile, VerificationType type) throws IOException {
         final Calendar instance = Calendar.getInstance();
         instance.add(Calendar.SECOND, -type.protectSeconds());
         // 短时间内不允许 1 分钟?
@@ -81,7 +90,7 @@ public abstract class AbstractVerificationCodeService implements VerificationCod
                 if (instance.before(list.stream().map(VerificationCodeMultiple::getSendTime)
                         .max(Calendar::compareTo)
                         .orElse(null))
-                        )
+                )
                     throw new FrequentlySendException("短时间内不可以重复发送。");
             }
             // 添加一个
@@ -126,16 +135,17 @@ public abstract class AbstractVerificationCodeService implements VerificationCod
 
     @Override
     public void sendCode(String mobile, VerificationType type) throws IOException {
-        sendCode(null,mobile,type);
+        sendCode(null, mobile, type);
     }
 
     /**
      * 实际的发送文本
+     *
      * @param sender
      * @param to      接受手机号码
      * @param content 内容
      */
-    protected abstract void send(Sender sender, String to, Content content) throws IOException;
+    protected abstract void send(NoticeSender sender, String to, Content content) throws IOException;
 
     /**
      * @param mobile 手机号码

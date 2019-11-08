@@ -16,7 +16,7 @@
     <groupId>com.huotu.verification-code</groupId>
     <artifactId>verification-code</artifactId>
     <packaging>pom</packaging>
-    <version>1.5.0-SNAPSHOT</version>
+    <version>1.6.0-SNAPSHOT</version>
 
     <description>
         通用的验证码服务，目前只支持创兰
@@ -34,9 +34,9 @@
 
         <http.version>4.5.2</http.version>
         <javaee.version>7.0</javaee.version>
-        <spring.version>4.2.5.RELEASE</spring.version>
+        <spring.version>4.3.8.RELEASE</spring.version>
         <jiangcai.version>2.2</jiangcai.version>
-        <jiangcai.notice.version>3.1</jiangcai.notice.version>
+        <jiangcai.notice.version>5.0</jiangcai.notice.version>
     </properties>
 
     <dependencies>

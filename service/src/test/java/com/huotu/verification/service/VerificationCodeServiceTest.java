@@ -22,7 +22,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import javax.activation.DataSource;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -64,6 +66,26 @@ public class VerificationCodeServiceTest {
                     @Override
                     public String asText() {
                         return message(code);
+                    }
+
+                    @Override
+                    public List<DataSource> embedAttachments() {
+                        return null;
+                    }
+
+                    @Override
+                    public List<DataSource> otherAttachments() {
+                        return null;
+                    }
+
+                    @Override
+                    public String asHtml(Map<String, String> attachmentRefs) {
+                        return null;
+                    }
+
+                    @Override
+                    public String asTitle() {
+                        return null;
                     }
 
                     @Override
@@ -165,6 +187,26 @@ public class VerificationCodeServiceTest {
                     }
 
                     @Override
+                    public List<DataSource> embedAttachments() {
+                        return null;
+                    }
+
+                    @Override
+                    public List<DataSource> otherAttachments() {
+                        return null;
+                    }
+
+                    @Override
+                    public String asHtml(Map<String, String> attachmentRefs) {
+                        return null;
+                    }
+
+                    @Override
+                    public String asTitle() {
+                        return null;
+                    }
+
+                    @Override
                     public String signName() {
                         return null;
                     }
@@ -225,6 +267,8 @@ public class VerificationCodeServiceTest {
         } catch (IllegalVerificationCodeException ignored) {
         }
 
+        // 万能码
+        verificationCodeService.verify(mobile, "9527", type);
         verificationCodeService.verify(mobile, "1234", type);
         // 再等待超时
         Thread.sleep(5000);

@@ -16,6 +16,7 @@ import com.huotu.verification.service.VerificationCodeService;
 import lombok.Getter;
 import lombok.Setter;
 import me.jiangcai.lib.notice.Content;
+import me.jiangcai.lib.notice.NoticeSender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -50,7 +51,7 @@ public class TestConfig {
     public VerificationCodeService verificationCodeService() {
         return new AbstractVerificationCodeService(verificationCodeRepository, verificationCodeMultipleRepository) {
             @Override
-            protected void send(Sender sender, String to, Content content) throws IOException {
+            protected void send(NoticeSender sender, String to, Content content) throws IOException {
                 received.add(to);
             }
 
