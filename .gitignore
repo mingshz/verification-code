@@ -12,3 +12,6 @@ target/
 *.log
 platform.log*
 iqiyi.log*
+
+service/src/test/resources/send*.properties
+service/src/test/java/com/huotu/verification/service/SendTest*.java
